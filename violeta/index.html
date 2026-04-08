@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dress Up! ✨ Tu Estilo, Tus Reglas</title>
+    <style>
+        /* --- VARIABLES Y RESET --- */
+        :root {
+            --primary: #ff52a2; /* Rosa vibrante */
+            --secondary: #5ce1e6; /* Cian juguetón */
+            --accent: #ffde59; /* Amarillo sol */
+            --dark: #2d3436;
+            --white: #ffffff;
+            --shadow: 5px 5px 0px var(--dark);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Un toque menos serio */
+        }
+
+        body {
+            background-color: #f0f0f0;
+            background-image: radial-gradient(var(--secondary) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--dark);
+            padding-bottom: 50px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--primary);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--dark);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--white);
+            text-shadow: 3px 3px 0px var(--dark);
+            letter-spacing: 2px;
+        }
+
+        /* --- CARRITO ICONO --- */
+        .cart-status {
+            background: var(--accent);
+            padding: 10px 20px;
+            border: 3px solid var(--dark);
+            box-shadow: var(--shadow);
+            display: inline-block;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .cart-status:hover {
+            transform: rotate(-2deg) scale(1.1);
+        }
+
+        /* --- CATÁLOGO --- */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            border: 4px solid var(--dark);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card:hover {
+            transform: translate(-5px, -5px);
+            box-shadow: 10px 10px 0px var(--secondary);
+        }
+
+        .card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border: 3px solid var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .card h3 { margin-bottom: 10px; font-size: 1.4rem; }
+
+        .price {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+
+        .btn-add {
+            background: var(--secondary);
+            border: 3px solid var(--dark);
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 3px 3px 0px var(--dark);
+        }
+
+        .btn-add:active {
+            box-shadow: 0px 0px 0px var(--dark);
+            transform: translate(3px, 3px);
+        }
+
+        /* --- CARRITO MODAL --- */
+        #cart-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            border: 5px solid var(--dark);
+            box-shadow: 20px 20px 0px rgba(0,0,0,0.2);
+            z-index: 200;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px dashed var(--dark);
+            padding: 10px 0;
+        }
+
+        .close-cart {
+            float: right;
+            cursor: pointer;
+            font-weight: bold;
+            color: red;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 150;
+        }
+
+        /* --- MENSAJE FLOTANTE --- */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent);
+            border: 3px solid var(--dark);
+            padding: 10px 20px;
+            display: none;
+            animation: bounce 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">👗 DRESS UP!</div>
+        <div class="cart-status" onclick="toggleCart()">
+            🛒 Mi Carrito (<span id="cart-count">0</span>)
+        </div>
+    </header>
+
+    <div class="container" id="catalog">
+        </div>
+
+    <div id="overlay" onclick="toggleCart()"></div>
+    <div id="cart-modal">
+        <span class="close-cart" onclick="toggleCart()">[ CERRAR ]</span>
+        <h2>Tu Botín 🛍️</h2>
+        <div id="cart-items">
+            </div>
+        <h3 style="margin-top: 20px;">Total: $<span id="cart-total">0</span></h3>
+        <button class="btn-add" style="margin-top:20px; width:100%" onclick="alert('¡Gracias por tu compra de prueba!')">FINALIZAR COMPRA ✨</button>
+    </div>
+
+    <div class="toast" id="toast">¡Añadido al carrito! 💖</div>
+
+    <script>
+        // Datos de ejemplo
+        const vestidos = [
+            { id: 1, name: "Vestido Galaxia", price: 45, img: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80" },
+            { id: 2, name: "Pinky Party", price: 38, img: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=400&q=80" },
+            { id: 3, name: "Verde Retro", price: 52, img: "./img/verde.jpg" },
+            { id: 4, name: "Cielo Azul", price: 30, img: "./img/cielo.jpg", style: "height: 300px" },
+            { id: 5, name: "Noche de Estrellas", price: 60, img: "./img/noche.jpg", style: "height: 400px;" },
+            { id: 6, name: "Fresa Sunset", price: 25, img: "./img/fresa.jpg" }
+        ];
+
+        let cart = [];
+
+        // Cargar Catálogo
+function loadCatalog() {
+    const catalog = document.getElementById('catalog');
+    catalog.innerHTML = ''; // Limpiamos por si acaso
+    
+    vestidos.forEach(v => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <img src="${v.img}" alt="${v.name}" style="${v.style || ''}"> 
+            
+            <h3>${v.name}</h3>
+            <p class="price">$${v.price}</p>
+            <button class="btn-add" onclick="addToCart(${v.id})">¡LO QUIERO! ✨</button>
+        `;
+        catalog.appendChild(card);
+    });
+}
+
+        // Añadir al carrito
+        function addToCart(id) {
+            const product = vestidos.find(p => p.id === id);
+            cart.push(product);
+            updateCartUI();
+            showToast();
+        }
+
+        // Actualizar Interfaz del Carrito
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            
+            const cartItems = document.getElementById('cart-items');
+            cartItems.innerHTML = '';
+            
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>$${item.price} <button onclick="removeItem(${index})" style="background:none; border:none; cursor:pointer">❌</button></span>
+                `;
+                cartItems.appendChild(div);
+            });
+            
+            document.getElementById('cart-total').innerText = total;
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        // Abrir/Cerrar Carrito
+        function toggleCart() {
+            const modal = document.getElementById('cart-modal');
+            const overlay = document.getElementById('overlay');
+            const isVisible = modal.style.display === 'block';
+            
+            modal.style.display = isVisible ? 'none' : 'block';
+            overlay.style.display = isVisible ? 'none' : 'block';
+        }
+
+        // Notificación juguetona
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+
+        loadCatalog();
+    </script>
+</body>
+</html>
